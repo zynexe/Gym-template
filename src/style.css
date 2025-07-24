@@ -28,6 +28,12 @@ a:hover {
   color: #535bf2;
 }
 
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -38,6 +44,7 @@ body {
   color: #fff;
   background-color: #000;
   overflow-x: hidden;
+  scroll-snap-type: y mandatory;
 }
 
 #app {
@@ -55,6 +62,7 @@ body {
   z-index: 1000;
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 .nav {
@@ -71,6 +79,7 @@ body {
   font-weight: bold;
   color: #fff;
   text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 .nav-menu {
@@ -122,7 +131,12 @@ button:focus-visible {
 
 .btn-primary:hover {
   background: #e55a2b;
-  border: 1px solid #ffffffff;
+}
+
+/* Section Styles with Snap */
+section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 /* Combined Hero and Features Section */
@@ -133,13 +147,16 @@ button:focus-visible {
   flex-direction: column;
   margin: 0;
   padding: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
 }
 
 /* Hero Section */
 .hero {
   flex: 1;
   width: 100%;
-  background: url('../assets/hero-image.png');
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../assets/hero-image.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -159,7 +176,7 @@ button:focus-visible {
 }
 
 .hero-title {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: bold;
   line-height: 1.2;
   margin-bottom: 1.5rem;
@@ -171,7 +188,7 @@ button:focus-visible {
 }
 
 .hero-description {
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #ccc;
   margin-bottom: 2rem;
   max-width: 500px;
@@ -225,6 +242,42 @@ button:focus-visible {
   white-space: nowrap;
 }
 
+/* Services Section */
+.services-section {
+  width: 100%;
+  height: 100vh;
+  background: #ffffff;
+  position: relative;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.services-content {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+  color: #333;
+}
+
+.services-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.services-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 3rem;
+}
+
 /* Keyframes for scrolling animation */
 @keyframes scroll-left {
   0% {
@@ -256,6 +309,10 @@ button:focus-visible {
     padding: 0 1rem;
   }
 
+  .services-title {
+    font-size: 2rem;
+  }
+
   .features-content {
     animation-duration: 25s;
   }
@@ -274,6 +331,10 @@ button:focus-visible {
     font-size: 2rem;
   }
 
+  .services-title {
+    font-size: 1.5rem;
+  }
+
   .nav-menu {
     flex-direction: column;
     gap: 0.5rem;
@@ -289,6 +350,17 @@ button:focus-visible {
 
   .feature-item:not(:last-child)::after {
     margin-left: 1rem;
+  }
+}
+
+/* Browser-specific scroll snap fixes */
+@supports (scroll-snap-type: y mandatory) {
+  html {
+    scroll-snap-type: y mandatory;
+  }
+  
+  section {
+    scroll-snap-align: start;
   }
 }
 
