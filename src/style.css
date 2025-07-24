@@ -42,7 +42,7 @@ body {
   font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   line-height: 1.6;
   color: #fff;
-  background-color: #000;
+  background-color: white;
   overflow-x: hidden;
   scroll-snap-type: y mandatory;
 }
@@ -96,7 +96,8 @@ body {
 }
 
 .nav-menu a:hover {
-  color: #ff6b35;
+  color: #ff6b35 !important;
+
 }
 
 button {
@@ -156,7 +157,7 @@ section {
 .hero {
   flex: 1;
   width: 100%;
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../assets/hero-image.png');
+  background:  url('../assets/hero-image.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -246,36 +247,187 @@ section {
 .services-section {
   width: 100%;
   height: 100vh;
-  background: #ffffff;
+  background: url('./assets/Mesh gradient Services.png') center/cover no-repeat;
   position: relative;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   z-index: 10;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
 }
 
 .services-content {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 2rem;
   text-align: center;
   color: #333;
 }
 
 .services-title {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: bold;
   margin-bottom: 2rem;
+  margin-top: 4rem;
   color: #333;
 }
 
 .services-subtitle {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #666;
   margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.services-cards {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  height: 400px;
+  margin-bottom: 1.5rem;
+}
+
+/* Default state - all cards are equal */
+.service-card {
+  border-radius: 20px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  flex: 1; 
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  z-index: 1;
+}
+
+.service-card-content {
+  position: relative;
+  z-index: 2;
+  color: white;
+}
+
+/* Individual card backgrounds */
+.service-card:nth-child(1) {
+  background-image: url('../assets/personal trainer.png');
+}
+
+.service-card:nth-child(2) {
+  background-image: url('../assets/equiments.png');
+}
+
+.service-card:nth-child(3) {
+  background-image: url('../assets/Money.png');
+}
+
+.service-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.service-card-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Open state styles */
+.service-card.card-open {
+  flex: 2; /* Expanded card takes twice the space */
+}
+
+.service-card.card-open .service-card-subtitle {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.service-card.card-open .service-card-title {
+  font-size: 1.8rem;
+}
+
+/* Closed state styles */
+.service-card.card-closed {
+  flex: 1; /* Non-expanded cards take normal space */
+}
+
+.service-card.card-closed .service-card-subtitle {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.service-card.card-closed .service-card-title {
+  font-size: 1.5rem;
+}
+
+/* Remove the default middle card open state */
+/* .service-card:nth-child(2) styles removed */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .services-cards {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .service-card {
+    height: 200px;
+    flex: 1;
+  }
+  
+  .service-card.card-open {
+    flex: 2;
+  }
+  
+  .services-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-section {
+    padding: 1rem;
+  }
+  
+  .service-card {
+    padding: 1.5rem;
+    height: 180px;
+  }
+  
+  .service-card-title {
+    font-size: 1.3rem;
+  }
+  
+  .service-card.card-open .service-card-title {
+    font-size: 1.5rem;
+  }
+  
+  .services-title {
+    font-size: 1.8rem;
+  }
 }
 
 /* Keyframes for scrolling animation */
@@ -376,3 +528,4 @@ section {
     background-color: #f9f9f9;
   }
 }
+

@@ -6,6 +6,65 @@ document.addEventListener('DOMContentLoaded', function() {
   document.documentElement.style.scrollSnapType = 'y mandatory';
   document.body.style.scrollSnapType = 'y mandatory';
 
+  // Service Cards Hover Logic - Using flex-grow approach
+  const serviceCards = document.querySelectorAll('.service-card');
+  const servicesContainer = document.querySelector('.services-cards');
+
+  // Initialize default state (all cards closed)
+  function initializeCards() {
+    serviceCards.forEach((card) => {
+      card.classList.remove('card-open');
+      card.classList.add('card-closed');
+      card.style.flex = '1'; // Reset to equal width
+      
+      // Explicitly hide all subtitles
+      const subtitle = card.querySelector('.service-card-subtitle');
+      if (subtitle) {
+        subtitle.style.opacity = '0';
+        subtitle.style.transform = 'translateY(20px)';
+      }
+    });
+  }
+
+  // Set initial state
+  initializeCards();
+
+  // Add hover event listeners to each card
+  serviceCards.forEach((card, index) => {
+    card.addEventListener('mouseenter', function() {
+      // Remove all classes first
+      serviceCards.forEach(c => {
+        c.classList.remove('card-open', 'card-closed');
+        c.classList.add('card-closed');
+        c.style.flex = '1'; // Set non-hovered cards to flex: 1
+        
+        // Hide subtitle for non-hovered cards
+        const subtitle = c.querySelector('.service-card-subtitle');
+        if (subtitle) {
+          subtitle.style.opacity = '0';
+          subtitle.style.transform = 'translateY(20px)';
+        }
+      });
+      
+      // Set the hovered card to open
+      card.classList.remove('card-closed');
+      card.classList.add('card-open');
+      card.style.flex = '2'; // Expand hovered card with flex: 2
+      
+      // Show subtitle only for hovered card
+      const subtitle = card.querySelector('.service-card-subtitle');
+      if (subtitle) {
+        subtitle.style.opacity = '1';
+        subtitle.style.transform = 'translateY(0)';
+      }
+    });
+  });
+
+  // Reset to default state when mouse leaves the container
+  servicesContainer.addEventListener('mouseleave', function() {
+    initializeCards();
+  });
+
   // Get all navigation links
   const navLinks = document.querySelectorAll('.nav-menu a');
   
@@ -61,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Change header style based on section with smoother transitions
       if (scrollPosition >= servicesTop - 100) {
-        header.style.background = 'rgba(255, 255, 255, 0.95)';
-        header.style.backdropFilter = 'blur(10px)';
+        header.style.background = 'rgba(255, 255, 255, 0.4)';
+        header.style.backdropFilter = 'blur(20px)';
         
         // Change text colors for services section
         const logo = header.querySelector('.logo');
@@ -80,8 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
           getStartedBtn.style.color = '#fff';
         }
       } else if (scrollPosition > 50) {
-        header.style.background = 'rgba(0, 0, 0, 0.95)';
-        header.style.backdropFilter = 'blur(10px)';
+        header.style.background = 'rgba(0, 0, 0, 0.1)';
+        header.style.backdropFilter = 'blur(20px)';
         
         const logo = header.querySelector('.logo');
         const navItems = header.querySelectorAll('.nav-menu a');
