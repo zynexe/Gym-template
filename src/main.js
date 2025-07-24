@@ -289,6 +289,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Mobile Navigation Toggle
+  const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+  const mobileNavClose = document.querySelector('.mobile-nav-close');
+  const mobileNav = document.querySelector('.mobile-nav');
+  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  
+  if (mobileNavToggle && mobileNav && mobileNavClose) {
+    mobileNavToggle.addEventListener('click', function() {
+      mobileNav.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+    });
+    
+    mobileNavClose.addEventListener('click', function() {
+      mobileNav.classList.remove('active');
+      document.body.style.overflow = ''; // Re-enable scrolling
+    });
+    
+    // Close mobile nav when clicking on a link
+    mobileNavLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileNav.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+  
   // Helper functions with better performance
   function getCurrentSection() {
     const sections = document.querySelectorAll('section');
@@ -330,4 +356,132 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
+  
+  // Setup animations with Intersection Observer
+  function setupAnimations() {
+    // Hero section elements
+    const heroElements = [
+      document.querySelector('.hero-title'),
+      document.querySelector('.hero-description'),
+      document.querySelector('.hero-cta')
+    ];
+    
+    // Service section elements
+    const serviceCards = document.querySelectorAll('.service-card');
+    const servicesTitle = document.querySelector('.services-title');
+    
+    // Add initial hidden classes
+    heroElements.forEach(el => {
+      if (el) el.classList.add('hidden-left');
+    });
+    
+    if (servicesTitle) servicesTitle.classList.add('hidden-top');
+    
+    serviceCards.forEach(card => {
+      card.classList.add('hidden-top');
+    });
+    
+    // Create observer for hero section
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // Only run animation when element enters viewport
+        if (entry.isIntersecting) {
+          const heroSection = entry.target;
+          
+          // Find elements within this hero section
+          const title = heroSection.querySelector('.hero-title');
+          const description = heroSection.querySelector('.hero-description');
+          const cta = heroSection.querySelector('.hero-cta');
+          
+          // Animate with staggering
+          if (title) {
+            title.classList.remove('hidden-left');
+            title.classList.add('animate-left', 'stagger-1');
+          }
+          
+          if (description) {
+            description.classList.remove('hidden-left');
+            description.classList.add('animate-left', 'stagger-2');
+          }
+          
+          if (cta) {
+            cta.classList.remove('hidden-left');
+            cta.classList.add('animate-left', 'stagger-3');
+          }
+        } else {
+          // When hero exits viewport, reset animations
+          const heroSection = entry.target;
+          
+          const title = heroSection.querySelector('.hero-title');
+          const description = heroSection.querySelector('.hero-description');
+          const cta = heroSection.querySelector('.hero-cta');
+          
+          if (title) {
+            title.classList.remove('animate-left', 'stagger-1');
+            title.classList.add('hidden-left');
+          }
+          
+          if (description) {
+            description.classList.remove('animate-left', 'stagger-2');
+            description.classList.add('hidden-left');
+          }
+          
+          if (cta) {
+            cta.classList.remove('animate-left', 'stagger-3');
+            cta.classList.add('hidden-left');
+          }
+        }
+      });
+    }, { threshold: 0.15 });
+    
+    // Create observer for services section
+    const servicesObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const servicesSection = entry.target;
+          
+          // Animate services title
+          const title = servicesSection.querySelector('.services-title');
+          if (title) {
+            title.classList.remove('hidden-top');
+            title.classList.add('animate-top', 'stagger-1');
+          }
+          
+          // Animate service cards with staggered delay
+          const cards = servicesSection.querySelectorAll('.service-card');
+          cards.forEach((card, index) => {
+            setTimeout(() => {
+              card.classList.remove('hidden-top');
+              card.classList.add('animate-top');
+            }, 200 + (index * 150)); // Stagger each card by 150ms
+          });
+        } else {
+          // Reset services animations when out of viewport
+          const servicesSection = entry.target;
+          
+          const title = servicesSection.querySelector('.services-title');
+          if (title) {
+            title.classList.remove('animate-top', 'stagger-1');
+            title.classList.add('hidden-top');
+          }
+          
+          const cards = servicesSection.querySelectorAll('.service-card');
+          cards.forEach(card => {
+            card.classList.remove('animate-top');
+            card.classList.add('hidden-top');
+          });
+        }
+      });
+    }, { threshold: 0.15 });
+    
+    // Start observing sections
+    const heroSection = document.querySelector('.hero');
+    const servicesSection = document.querySelector('.services-section');
+    
+    if (heroSection) heroObserver.observe(heroSection);
+    if (servicesSection) servicesObserver.observe(servicesSection);
+  }
+  
+  // Call setup animations after DOM is loaded
+  setupAnimations();
 });
