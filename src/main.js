@@ -109,6 +109,123 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // Navbar hide/show on scroll functionality
+  function setupNavbarScrollBehavior() {
+    const header = document.querySelector('.header');
+    if (!header) return;
+    
+    let lastScrollY = window.scrollY;
+    let isScrollingDown = false;
+    let scrollTimeout;
+    
+    function handleNavbarScroll() {
+      const currentScrollY = window.scrollY;
+      const scrollDifference = Math.abs(currentScrollY - lastScrollY);
+      
+      // Only trigger if scroll difference is significant (avoid micro-scrolls)
+      if (scrollDifference > 10) {
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          // Scrolling down & past 100px - hide navbar
+          if (!isScrollingDown) {
+            isScrollingDown = true;
+            header.style.transform = 'translateY(-100%)';
+            header.style.transition = 'transform 0.3s ease-in-out';
+          }
+        } else if (currentScrollY < lastScrollY) {
+          // Scrolling up - show navbar
+          if (isScrollingDown) {
+            isScrollingDown = false;
+            header.style.transform = 'translateY(0)';
+            header.style.transition = 'transform 0.3s ease-in-out';
+          }
+        }
+        
+        // Always show navbar at the very top
+        if (currentScrollY <= 50) {
+          isScrollingDown = false;
+          header.style.transform = 'translateY(0)';
+        }
+        
+        lastScrollY = currentScrollY;
+      }
+    }
+    
+    // Throttled scroll event for better performance
+    window.addEventListener('scroll', function() {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(handleNavbarScroll, 10);
+    });
+    
+    // Also handle wheel events for immediate response
+    window.addEventListener('wheel', function(e) {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > 100) {
+        if (e.deltaY > 0) {
+          // Scrolling down - hide navbar
+          if (!isScrollingDown) {
+            isScrollingDown = true;
+            header.style.transform = 'translateY(-100%)';
+            header.style.transition = 'transform 0.3s ease-in-out';
+          }
+        } else {
+          // Scrolling up - show navbar
+          if (isScrollingDown) {
+            isScrollingDown = false;
+            header.style.transform = 'translateY(0)';
+            header.style.transition = 'transform 0.3s ease-in-out';
+          }
+        }
+      }
+    });
+    
+    // Touch events for mobile
+    let touchStartY = 0;
+    let touchLastY = 0;
+    
+    window.addEventListener('touchstart', function(e) {
+      touchStartY = e.touches[0].clientY;
+      touchLastY = touchStartY;
+    });
+    
+    window.addEventListener('touchmove', function(e) {
+      const currentTouchY = e.touches[0].clientY;
+      const touchDiff = touchLastY - currentTouchY;
+      const currentScrollY = window.scrollY;
+      
+      if (Math.abs(touchDiff) > 5 && currentScrollY > 100) {
+        if (touchDiff > 0) {
+          // Swiping up (scrolling down) - hide navbar
+          if (!isScrollingDown) {
+            isScrollingDown = true;
+            header.style.transform = 'translateY(-100%)';
+            header.style.transition = 'transform 0.3s ease-in-out';
+          }
+        } else {
+          // Swiping down (scrolling up) - show navbar
+          if (isScrollingDown) {
+            isScrollingDown = false;
+            header.style.transform = 'translateY(0)';
+            header.style.transition = 'transform 0.3s ease-in-out';
+          }
+        }
+      }
+      
+      touchLastY = currentTouchY;
+    });
+    
+    // Show navbar when hovering near top of screen
+    window.addEventListener('mousemove', function(e) {
+      if (e.clientY <= 80 && window.scrollY > 100) {
+        if (isScrollingDown) {
+          isScrollingDown = false;
+          header.style.transform = 'translateY(0)';
+          header.style.transition = 'transform 0.3s ease-in-out';
+        }
+      }
+    });
+  }
+
   // Enhanced scroll effect for header background with better transitions
   window.addEventListener('scroll', function() {
     const header = document.querySelector('.header');
@@ -120,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Change header style based on section with smoother transitions
       if (scrollPosition >= servicesTop - 100) {
-        header.style.background = 'rgba(255, 255, 255, 0.4)';
+        header.style.background = 'rgba(255, 255, 255, 0.68)';
         header.style.backdropFilter = 'blur(20px)';
         
         // Change text colors for services section
@@ -318,8 +435,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Helper functions with better performance
   function getCurrentSection() {
     const sections = document.querySelectorAll('section');
+    const footer = document.querySelector('footer');
     const scrollPosition = window.scrollY + (window.innerHeight / 2);
     
+    // Check sections first
     for (let section of sections) {
       const sectionTop = section.offsetTop;
       const sectionBottom = sectionTop + section.offsetHeight;
@@ -328,6 +447,18 @@ document.addEventListener('DOMContentLoaded', function() {
         return section;
       }
     }
+    
+    // Check if we're in the footer
+    if (footer) {
+      const footerTop = footer.offsetTop;
+      const footerBottom = footerTop + footer.offsetHeight;
+      
+      if (scrollPosition >= footerTop && scrollPosition < footerBottom) {
+        return footer;
+      }
+    }
+    
+    // Default to first section if nothing is found
     return sections[0];
   }
 
@@ -484,4 +615,156 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Call setup animations after DOM is loaded
   setupAnimations();
+
+  // Classes Carousel Functionality
+  function setupClassesCarousel() {
+    const carousel = document.querySelector('.classes-carousel');
+    const classItems = document.querySelectorAll('.class-item');
+    const classInfos = document.querySelectorAll('.class-info');
+    const prevButton = document.querySelector('.prev-arrow');
+    const nextButton = document.querySelector('.next-arrow');
+    
+    if (!carousel || classItems.length === 0) return;
+    
+    let currentIndex = 0;
+    const totalItems = classItems.length;
+    
+    // Touch/Swipe variables
+    let startX = 0;
+    let endX = 0;
+    let isDragging = false;
+    
+    function updateCarousel() {
+      // Remove active class from all items
+      classItems.forEach(item => item.classList.remove('active'));
+      classInfos.forEach(info => info.classList.remove('active'));
+      
+      // Add active class to current item
+      classItems[currentIndex].classList.add('active');
+      classInfos[currentIndex].classList.add('active');
+      
+      // Get current viewport width for responsive calculations
+      const viewportWidth = window.innerWidth;
+      let itemWidth, gap, moveDistance;
+      
+      if (viewportWidth <= 480) {
+        // Small mobile
+        itemWidth = 100;
+        gap = 8; // 0.5rem
+        moveDistance = (itemWidth + gap) * currentIndex;
+      } else if (viewportWidth <= 768) {
+        // Mobile/tablet
+        itemWidth = 180;
+        gap = 16; // 1rem
+        moveDistance = (itemWidth + gap) * currentIndex;
+      } else {
+        // Desktop
+        itemWidth = 400;
+        gap = 32; // 2rem
+        moveDistance = (itemWidth + gap) * currentIndex;
+      }
+      
+      carousel.style.transform = `translateX(-${moveDistance}px)`;
+    }
+
+    function nextSlide() {
+      currentIndex = (currentIndex + 1) % totalItems;
+      updateCarousel();
+    }
+    
+    function prevSlide() {
+      currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+      updateCarousel();
+    }
+    
+    // Arrow navigation (desktop only)
+    if (nextButton && prevButton) {
+      nextButton.addEventListener('click', nextSlide);
+      prevButton.addEventListener('click', prevSlide);
+    }
+    
+    // Touch/Mouse events for swiping
+    function handleStart(e) {
+      isDragging = true;
+      startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      carousel.style.transition = 'none';
+    }
+    
+    function handleMove(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      endX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    }
+    
+    function handleEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      carousel.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      
+      const threshold = 50;
+      const diff = startX - endX;
+      
+      if (Math.abs(diff) > threshold) {
+        if (diff > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+      }
+      
+      startX = 0;
+      endX = 0;
+    }
+    
+    // Mouse events
+    carousel.addEventListener('mousedown', handleStart);
+    carousel.addEventListener('mousemove', handleMove);
+    carousel.addEventListener('mouseup', handleEnd);
+    carousel.addEventListener('mouseleave', handleEnd);
+    
+    // Touch events
+    carousel.addEventListener('touchstart', handleStart, { passive: false });
+    carousel.addEventListener('touchmove', handleMove, { passive: false });
+    carousel.addEventListener('touchend', handleEnd);
+    
+    // Click on items to navigate
+    classItems.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        if (index !== currentIndex) {
+          currentIndex = index;
+          updateCarousel();
+        }
+      });
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      const classesSection = document.querySelector('.classes-section');
+      const rect = classesSection.getBoundingClientRect();
+      const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+      
+      if (isInView) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevSlide();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextSlide();
+        }
+      }
+    });
+    
+    
+    // Initialize carousel
+    updateCarousel();
+    
+    // Auto-play (optional - uncomment if needed)
+    // setInterval(nextSlide, 5000);
+  }
+  
+  // Call setup functions
+  setupAnimations();
+  setupClassesCarousel();
+  setupNavbarScrollBehavior(); // Add this line
+
 });
