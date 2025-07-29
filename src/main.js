@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
         case 'End':
           e.preventDefault();
           isScrolling = true;
-          const sections = document.querySelectorAll('section');
+          const sections = document.querySelectorAll('section, footer');
           sections[sections.length - 1].scrollIntoView({
             behavior: 'smooth',
             block: 'start'
@@ -434,11 +434,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Helper functions with better performance
   function getCurrentSection() {
-    const sections = document.querySelectorAll('section');
-    const footer = document.querySelector('footer');
+    const sections = document.querySelectorAll('section, footer');
     const scrollPosition = window.scrollY + (window.innerHeight / 2);
     
-    // Check sections first
     for (let section of sections) {
       const sectionTop = section.offsetTop;
       const sectionBottom = sectionTop + section.offsetHeight;
@@ -448,22 +446,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
     
-    // Check if we're in the footer
-    if (footer) {
-      const footerTop = footer.offsetTop;
-      const footerBottom = footerTop + footer.offsetHeight;
-      
-      if (scrollPosition >= footerTop && scrollPosition < footerBottom) {
-        return footer;
-      }
-    }
-    
-    // Default to first section if nothing is found
     return sections[0];
   }
 
   function scrollToNextSection(currentSection) {
-    const sections = Array.from(document.querySelectorAll('section'));
+    const sections = Array.from(document.querySelectorAll('section, footer'));
     const currentIndex = sections.indexOf(currentSection);
     
     if (currentIndex < sections.length - 1) {
@@ -476,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function scrollToPrevSection(currentSection) {
-    const sections = Array.from(document.querySelectorAll('section'));
+    const sections = Array.from(document.querySelectorAll('section, footer'));
     const currentIndex = sections.indexOf(currentSection);
     
     if (currentIndex > 0) {
@@ -736,23 +723,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
     });
+
+
     
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-      const classesSection = document.querySelector('.classes-section');
-      const rect = classesSection.getBoundingClientRect();
-      const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-      
-      if (isInView) {
-        if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          prevSlide();
-        } else if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          nextSlide();
-        }
-      }
-    });
+    
     
     
     // Initialize carousel

@@ -1626,14 +1626,19 @@ section {
   z-index: 1;
 }
 .location-container{
-  position: relative;
+   position: relative;
   width: 100%;
   height: 50vh;
-  background: url('./assets/location.png') no-repeat center center/cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  /* We break down the background property to control position with JS */
+  background-image: url('./assets/location.png'); /* */
+  background-repeat: no-repeat; /* */
+  background-size: cover; /* */
+  background-position: center 50%; /* Set initial vertical position */
+  display: flex; /* */
+  align-items: center; /* */
+  justify-content: center; /* */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* */
+  overflow: hidden; /* Add this to ensure nothing spills out */
 }
 
 .location-content {
