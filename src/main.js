@@ -1,10 +1,26 @@
 import './style.css'
 
-// Enhanced smooth scrolling with snap effect
 document.addEventListener('DOMContentLoaded', function() {
-  // Ensure scroll snap is working
-  document.documentElement.style.scrollSnapType = 'y mandatory';
-  document.body.style.scrollSnapType = 'y mandatory';
+  // Apply scroll snap only on desktop
+  function setupScrollBehavior() {
+  const applyScrollSnap = window.innerWidth > 768;
+  
+  if (applyScrollSnap) {
+    // Add scroll snap type for desktop only
+    document.documentElement.style.scrollSnapType = 'y mandatory';
+    console.log('Desktop scroll snap enabled'); // Debug log
+  } else {
+    // Remove scroll snap for mobile
+    document.documentElement.style.scrollSnapType = 'none';
+    console.log('Mobile scroll snap disabled'); // Debug log
+  }
+}
+  
+  // Initial setup
+  setupScrollBehavior();
+  
+  // Update on resize
+  window.addEventListener('resize', setupScrollBehavior);
 
   // Service Cards Hover Logic - Using flex-grow approach
   const serviceCards = document.querySelectorAll('.service-card');
@@ -281,131 +297,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Variables for better scroll control
-  let isScrolling = false;
-  let scrollDelta = 0;
-  let scrollTimeout;
-
-  // Much more sensitive wheel event handler
-  window.addEventListener('wheel', function(e) {
-    e.preventDefault(); // Prevent default scrolling
-    
-    // Accumulate scroll delta for more sensitivity
-    scrollDelta += e.deltaY;
-    
-    // Clear existing timeout
-    clearTimeout(scrollTimeout);
-    
-    // Much lower threshold for easier scrolling
-    const threshold = 30; // Reduced from 50 to 30
-    
-    scrollTimeout = setTimeout(function() {
-      if (Math.abs(scrollDelta) > threshold && !isScrolling) {
-        isScrolling = true;
-        
-        const currentSection = getCurrentSection();
-        
-        if (scrollDelta > 0) {
-          // Scrolling down
-          scrollToNextSection(currentSection);
-        } else {
-          // Scrolling up
-          scrollToPrevSection(currentSection);
-        }
-        
-        // Reset scroll delta
-        scrollDelta = 0;
-        
-        // Allow next scroll after animation
-        setTimeout(() => {
-          isScrolling = false;
-        }, 800); // Reduced from longer timeout
-      } else if (Math.abs(scrollDelta) <= threshold) {
-        // Reset if below threshold
-        scrollDelta = 0;
-      }
-    }, 50); // Much faster response time
-  }, { passive: false });
-
-  // Touch events for mobile
-  let touchStartY = 0;
-  let touchEndY = 0;
-
-  window.addEventListener('touchstart', function(e) {
-    touchStartY = e.touches[0].clientY;
-  });
-
-  window.addEventListener('touchend', function(e) {
-    touchEndY = e.changedTouches[0].clientY;
-    const touchDelta = touchStartY - touchEndY;
-    
-    // Lower threshold for touch as well
-    if (Math.abs(touchDelta) > 30 && !isScrolling) {
-      isScrolling = true;
-      
-      const currentSection = getCurrentSection();
-      
-      if (touchDelta > 0) {
-        // Swiping up (scroll down)
-        scrollToNextSection(currentSection);
-      } else {
-        // Swiping down (scroll up)
-        scrollToPrevSection(currentSection);
-      }
-      
-      setTimeout(() => {
-        isScrolling = false;
-      }, 800);
-    }
-  });
-
-  // Keyboard navigation for accessibility
-  window.addEventListener('keydown', function(e) {
-    if (!isScrolling) {
-      const currentSection = getCurrentSection();
-      
-      switch(e.key) {
-        case 'ArrowDown':
-        case 'PageDown':
-        case ' ': // Spacebar
-          e.preventDefault();
-          isScrolling = true;
-          scrollToNextSection(currentSection);
-          setTimeout(() => { isScrolling = false; }, 800);
-          break;
-          
-        case 'ArrowUp':
-        case 'PageUp':
-          e.preventDefault();
-          isScrolling = true;
-          scrollToPrevSection(currentSection);
-          setTimeout(() => { isScrolling = false; }, 800);
-          break;
-          
-        case 'Home':
-          e.preventDefault();
-          isScrolling = true;
-          document.querySelector('#hero').scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-          setTimeout(() => { isScrolling = false; }, 800);
-          break;
-          
-        case 'End':
-          e.preventDefault();
-          isScrolling = true;
-          const sections = document.querySelectorAll('section, footer');
-          sections[sections.length - 1].scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-          setTimeout(() => { isScrolling = false; }, 800);
-          break;
-      }
-    }
-  });
-
   // Mobile Navigation Toggle
   const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
   const mobileNavClose = document.querySelector('.mobile-nav-close');
@@ -430,49 +321,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = '';
       });
     });
-  }
-  
-  // Helper functions with better performance
-  function getCurrentSection() {
-    const sections = document.querySelectorAll('section, footer');
-    const scrollPosition = window.scrollY + (window.innerHeight / 2);
-    
-    for (let section of sections) {
-      const sectionTop = section.offsetTop;
-      const sectionBottom = sectionTop + section.offsetHeight;
-      
-      if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-        return section;
-      }
-    }
-    
-    return sections[0];
-  }
-
-  function scrollToNextSection(currentSection) {
-    const sections = Array.from(document.querySelectorAll('section, footer'));
-    const currentIndex = sections.indexOf(currentSection);
-    
-    if (currentIndex < sections.length - 1) {
-      const nextSection = sections[currentIndex + 1];
-      nextSection.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  }
-
-  function scrollToPrevSection(currentSection) {
-    const sections = Array.from(document.querySelectorAll('section, footer'));
-    const currentIndex = sections.indexOf(currentSection);
-    
-    if (currentIndex > 0) {
-      const prevSection = sections[currentIndex - 1];
-      prevSection.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
   }
   
   // Setup animations with Intersection Observer
@@ -599,9 +447,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (heroSection) heroObserver.observe(heroSection);
     if (servicesSection) servicesObserver.observe(servicesSection);
   }
-  
-  // Call setup animations after DOM is loaded
-  setupAnimations();
 
   // Classes Carousel Functionality
   function setupClassesCarousel() {
@@ -724,21 +569,44 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
 
+    function setupParallax() {
+      window.addEventListener('scroll', () => {
+        const locationContainer = document.querySelector('.location-container');
+        if (!locationContainer) return;
 
-    
-    
-    
-    
+        const rect = locationContainer.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // Check if the section is visible in the viewport
+        if (rect.top < windowHeight && rect.bottom > 0) {
+          // Calculate how far the section has been scrolled through the viewport.
+          // The result is a fraction from 0 (just entered) to 1 (fully passed).
+          const scrollFraction = (windowHeight - rect.top) / (windowHeight + rect.height);
+
+          // We only want to apply the effect while it's scrolling through
+          if (scrollFraction >= 0 && scrollFraction <= 1) {
+            // Define the start and end positions for the background.
+            // This will move the background from 40% to 60% vertically.
+            const startPos = 40;
+            const endPos = 100;
+            const backgroundPos = startPos + scrollFraction * (endPos - startPos);
+
+            // Apply the new position. The image will move upwards as you scroll down.
+            locationContainer.style.backgroundPositionY = `${backgroundPos}%`;
+          }
+        }
+      });
+    }
+
+    // Initialize parallax effect
+    setupParallax();
+
     // Initialize carousel
     updateCarousel();
-    
-    // Auto-play (optional - uncomment if needed)
-    // setInterval(nextSlide, 5000);
   }
   
   // Call setup functions
   setupAnimations();
   setupClassesCarousel();
-  setupNavbarScrollBehavior(); // Add this line
-
+  setupNavbarScrollBehavior();
 });
